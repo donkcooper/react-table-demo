@@ -1,13 +1,14 @@
 import React, { useMemo } from "react";
-import { useTable, useSortBy } from "react-table";
+import { useTable, useFilters, useSortBy } from "react-table";
 import MOCK_DATA from "./MOCK_DATA.json";
 import { COLUMNS } from "./columns";
 import Table from "react-bootstrap/Table";
 import "bootstrap/dist/css/bootstrap.min.css";
 import { FaSort, FaSortDown, FaSortUp } from "react-icons/fa";
+import { FilterInput } from "./FilterInput";
 
 //Functional component
-export function DataTable({ isSorted }) {
+export function DataTable({ isSorted, allowFilter }) {
   //useMemo is hook which helps in optimization and correct re-render of data
   const columns = useMemo(() => COLUMNS, []);
   const data = useMemo(() => MOCK_DATA, []);
@@ -22,6 +23,7 @@ export function DataTable({ isSorted }) {
         columns,
         data,
       },
+      allowFilter ? useFilters : "",
       isSorted ? useSortBy : ""
     );
 
@@ -33,7 +35,7 @@ export function DataTable({ isSorted }) {
             {headerGroup.headers.map((columns) =>
               isSorted ? (
                 <th {...columns.getHeaderProps(columns.getSortByToggleProps())}>
-                  {columns.render("Header")}{" "}
+                  {columns.render("Header")}
                   <span>
                     {columns.isSorted ? (
                       columns.isSortedDesc ? (
@@ -45,10 +47,20 @@ export function DataTable({ isSorted }) {
                       <FaSort />
                     )}
                   </span>
+                  {allowFilter && columns.canFilter ? (
+                    <FilterInput column={columns} />
+                  ) : (
+                    <></>
+                  )}
                 </th>
               ) : (
                 <th {...columns.getHeaderProps()}>
                   {columns.render("Header")}
+                  {allowFilter && columns.canFilter ? (
+                    <FilterInput column={columns} />
+                  ) : (
+                    <></>
+                  )}
                 </th>
               )
             )}
